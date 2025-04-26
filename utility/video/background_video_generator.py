@@ -52,6 +52,10 @@ def getBestVideo(query_string, orientation_landscape=True, used_vids=[]):
     return None
 
 
+def get_images_for_video(timed_video_searches):
+    pass
+
+
 def generate_video_url(timed_video_searches,video_server):
         timed_video_urls = []
         if video_server == "pexel":

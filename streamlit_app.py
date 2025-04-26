@@ -1,3 +1,5 @@
+import traceback
+
 import streamlit as st
 import asyncio
 import os
@@ -60,4 +62,7 @@ if st.button("开始生成") and topic.strip():
         st.video(output_path)
 
     except Exception as e:
+        tb = traceback.format_exc()
         st.error(f"❌ 出现错误: {e}")
+        st.text("错误详情如下：")
+        st.text(tb)

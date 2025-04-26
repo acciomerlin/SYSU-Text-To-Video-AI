@@ -6,7 +6,7 @@ import json
 
 if len(os.environ.get("GROQ_API_KEY")) > 30:
     from groq import Groq
-    model = "meta-llama/llama-4-scout-17b-16e-instruct"
+    model = "qwen-qwq-32b"
     client = Groq(
         api_key=os.environ.get("GROQ_API_KEY")
         )
@@ -55,7 +55,7 @@ def generate_script(topic):
         )
     else:
         prompt = (
-            """You are an expert creative writer and digital content assistant specialized in transforming user ideas about campus life into engaging and imaginative **short stories** (approximately 100 words).
+            """USE ONLY ENGLISH. You are an expert creative writer and digital content assistant specialized in transforming user ideas about campus life into engaging and imaginative **short stories** (approximately 100 words).
 
         Your goal is to help users generate high-quality, personalized short narratives that can be turned into short videos using multimodal AI and agent-based systems.
 
