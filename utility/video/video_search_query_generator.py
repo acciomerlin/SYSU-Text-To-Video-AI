@@ -40,21 +40,25 @@ Note: Your response should be the response only and no extra text or data.
   """
 
 def fix_json(json_str):
-    # Replace typographical apostrophes with straight quotes
-    json_str = json_str.replace("’", "'")
-    # Replace any incorrect quotes (e.g., mixed single and double quotes)
-    json_str = json_str.replace("“", "\"").replace("”", "\"").replace("‘", "\"").replace("’", "\"")
-    # Add escaping for quotes within the strings
-    json_str = json_str.replace('"you didn"t"', '"you didn\'t"')
+    json_str = json_str.replace("’", "'").replace("‘", "'")
+    json_str = json_str.replace("“", '"').replace("”", '"')
+    json_str = re.sub(r'\\(?!["\\/bfnrtu])', r'\\\\', json_str)  # 修复非法反斜杠
+    json_str = re.sub(r'(?<!\\)"(?![:,}\]])', r'\"', json_str)  # 修复非结构性引号
     return json_str
+
 
 def getVideoSearchQueriesTimed(script,captions_timed):
     end = captions_timed[-1][0][1]
     try:
-        
+        print(script)
+        print("==============")
+        print(captions_timed)
+        print("==============")
+
         out = [[[0,0],""]]
         while out[-1][0][1] != end:
-            content = call_OpenAI(script,captions_timed).replace("'",'"')
+            # content = call_OpenAI(script,captions_timed).replace("'",'"')
+            content = call_OpenAI(script, captions_timed).replace("'", '"')
             try:
                 out = json.loads(content)
             except Exception as e:
@@ -65,7 +69,7 @@ def getVideoSearchQueriesTimed(script,captions_timed):
         return out
     except Exception as e:
         print("error in response",e)
-   
+
     return None
 
 def call_OpenAI(script,captions_timed):
@@ -73,7 +77,7 @@ def call_OpenAI(script,captions_timed):
 Timed Captions:{}
 """.format(script,"".join(map(str,captions_timed)))
     print("Content", user_content)
-    
+
     response = client.chat.completions.create(
         model= model,
         temperature=1,
@@ -82,7 +86,7 @@ Timed Captions:{}
             {"role": "user", "content": user_content}
         ]
     )
-    
+
     text = response.choices[0].message.content.strip()
     text = re.sub('\s+', ' ', text)
     print("Text", text)
@@ -99,7 +103,7 @@ def merge_empty_intervals(segments):
             j = i + 1
             while j < len(segments) and segments[j][1] is None:
                 j += 1
-            
+
             # Merge consecutive None intervals with the previous valid URL
             if i > 0:
                 prev_interval, prev_url = merged[-1]
@@ -109,10 +113,10 @@ def merge_empty_intervals(segments):
                     merged.append([interval, prev_url])
             else:
                 merged.append([interval, None])
-            
+
             i = j
         else:
             merged.append([interval, url])
             i += 1
-    
+
     return merged
