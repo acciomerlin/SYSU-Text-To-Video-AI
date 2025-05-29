@@ -5,3 +5,4 @@ __pycache__/
 .cache/whisper/base.pt
 
 .cache/whisper/*.pt
+.cache/whisper/*.pt
