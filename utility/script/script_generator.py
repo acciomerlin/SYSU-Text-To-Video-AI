@@ -2,28 +2,24 @@ import os
 
 from langdetect import detect
 from openai import OpenAI
-import json
 
 if len(os.environ.get("GROQ_API_KEY")) > 30:
     from groq import Groq
+
     model = "qwen-qwq-32b"
     client = Groq(
         api_key=os.environ.get("GROQ_API_KEY")
-        )
+    )
 else:
     OPENAI_API_KEY = os.getenv('OPENAI_KEY')
     model = "gpt-4o"
     client = OpenAI(api_key=OPENAI_API_KEY)
 
 
-def generate_script(topic):
-    # 自动检测语言
-    try:
-        lang_code = detect(topic)
-    except:
-        lang_code = 'en'  # 默认英文
-
-    is_chinese = lang_code.startswith("zh")
+def generate_script(topic, language):
+    is_chinese = 0
+    if language == 1:
+        is_chinese = 1
 
     # 根据语言选择 prompt
     if is_chinese:
@@ -82,12 +78,12 @@ def generate_script(topic):
         )
 
     response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": topic}
-            ]
-        )
+        model=model,
+        messages=[
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": topic}
+        ]
+    )
     content = response.choices[0].message.content
     print("[原始输出]:", content)
 
@@ -95,28 +91,23 @@ def generate_script(topic):
     print("[提取脚本]:", script)
     return script
 
+
 import json
 import re
 
+
 def extract_json_script(raw_str):
     """
-    从原始 LLM 返回文本中提取 JSON，转义非法字符，并返回 script 字段。
+    从原始字符串中提取包含 "script" 字段的 JSON 并返回其值。
     """
+    # 使用正则查找第一个 JSON 对象，要求里面包含 "script" 字段
+    match = re.search(r'\{[^{}]*"script"\s*:\s*"[^"]*"[^{}]*\}', raw_str, re.DOTALL)
+
+    if not match:
+        raise ValueError("未能找到 JSON 格式")
+
     try:
-        # 尝试直接解析
-        return json.loads(raw_str)["script"]
-    except json.JSONDecodeError as e:
-        # 提取 JSON 结构
-        json_match = re.search(r'\{.*\}', raw_str, re.DOTALL)
-        if not json_match:
-            raise ValueError("未能找到 JSON 格式") from e
-
-        json_str = json_match.group(0)
-
-        # 替换非法字符：裸换行、裸回车、制表符
-        json_str_cleaned = json_str.replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
-
-        try:
-            return json.loads(json_str_cleaned)["script"]
-        except Exception as final_e:
-            raise ValueError("修复后的 JSON 依旧解析失败") from final_e
+        data = json.loads(match.group(0))
+        return data["script"]
+    except Exception as e:
+        raise ValueError("解析 JSON 失败") from e

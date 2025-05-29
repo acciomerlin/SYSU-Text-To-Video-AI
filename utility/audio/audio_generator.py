@@ -13,7 +13,7 @@ def generate_audio_sync(text, outputFilename):
     try:
         lang_code = detect(text)  # 自动检测语言
     except:
-        lang_code = "zh-CN"  # 默认中文（检测失败时）
+        lang_code = "zh-TW"  # 默认中文（检测失败时）
 
     # gTTS 的语言代码转换
     if lang_code.startswith('zh'):
