@@ -1,8 +1,6 @@
 .logs/
-venv/
+.venv/
 __pycache__/
 .DS_Store
-.cache/whisper/base.pt
-
-.cache/whisper/*.pt
-.cache/whisper/*.pt
+.cache
+*.mp4
