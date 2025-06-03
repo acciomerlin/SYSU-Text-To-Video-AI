@@ -14,6 +14,15 @@ from utility.video.background_video_generator import generate_video_url
 from utility.video.video_search_query_generator import getVideoSearchQueriesTimed, merge_empty_intervals
 from utility.render.render_engine import get_output_media
 
+def generate_all_caption_images_placeholder():
+    # TODO: 实现生成所有字幕对应图的逻辑
+    pass
+
+def generate_single_caption_image_placeholder():
+    # TODO: 实现每个字幕单独生成图的逻辑
+    pass
+
+
 # ========== 输入检测 ==========
 def is_valid_input(language: str, text: str) -> bool:
     text = text.strip()
@@ -87,14 +96,45 @@ if topic:
         if st.session_state.audio_path and st.button("3️⃣ 生成字幕"):
             with st.spinner("生成字幕中..."):
                 try:
-                    st.session_state.captions = generate_timed_captions(st.session_state.audio_path)
+                    st.session_state.captions = generate_timed_captions(st.session_state.audio_path, st.session_state.script, "base",language)
                     st.success("✅ 字幕生成完成")
                 except Exception as e:
                     st.error(f"❌ 字幕生成出错: {e}")
 
         # 字幕预览
         if st.session_state.captions:
+            st.markdown("#### 📑 字幕预览")
             st.json(st.session_state.captions)
+
+        if st.session_state.captions:
+            st.markdown("#### 📑 字幕列表")
+
+            col_all, _ = st.columns([2, 6])
+            with col_all:
+                if st.button("🖼️ 一键生成所有字幕图"):
+                    try:
+                        generate_all_caption_images_placeholder()
+                        st.success("✅ 所有字幕图生成完成（待实现）")
+                    except Exception as e:
+                        st.error(f"❌ 批量生成字幕图失败: {e}")
+
+            for idx, item in enumerate(st.session_state.captions):
+                if isinstance(item, (list, tuple)) and len(item) == 2:
+                    time_range, text = item
+                    if isinstance(time_range, (list, tuple)) and len(time_range) == 2:
+                        start = float(time_range[0])
+                        end = float(time_range[1])
+
+                        col1, col2 = st.columns([6, 2])
+                        with col1:
+                            st.markdown(f"**[{round(start, 2)}s - {round(end, 2)}s]** {text}")
+                        with col2:
+                            if st.button("生成图", key=f"caption_img_{idx}"):
+                                st.info(f"你点击了第 {idx} 个字幕图按钮（待实现）")
+                    else:
+                        st.warning(f"⛔ 第 {idx} 条字幕时间范围格式错误：{time_range}")
+                else:
+                    st.warning(f"⚠️ 第 {idx} 条字幕结构异常：{item}")
 
         # 4. 生成关键词
         if st.session_state.script and st.session_state.captions and st.button("4️⃣ 生成视频搜索关键词"):
@@ -144,3 +184,4 @@ if topic:
         # 最终视频预览
         if st.session_state.final_video:
             st.video(st.session_state.final_video)
+

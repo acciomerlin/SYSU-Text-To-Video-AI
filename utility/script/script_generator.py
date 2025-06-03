@@ -6,7 +6,7 @@ from openai import OpenAI
 if len(os.environ.get("GROQ_API_KEY")) > 30:
     from groq import Groq
 
-    model = "qwen-qwq-32b"
+    model = "deepseek-r1-distill-llama-70b"
     client = Groq(
         api_key=os.environ.get("GROQ_API_KEY")
     )
@@ -35,6 +35,7 @@ def generate_script(topic, language):
             - 如有需要，可加入简单的动作与对话
 
             短篇故事应具有画面感和情绪张力，适合转换为真实校园视频、动画或风格化画面。可以创意搞笑，也可以温馨感人。
+            不要使用剧本格式，不要使用括号或旁白风格的动作描述，不要加上“旁白：”或“（人物说话）”等格式。不要出现台词或人物说话格式。只输出一段自然、优美、仿佛出自小说或说书人之口的连续文字
 
             例如用户输入：
             - “考试周的崩溃瞬间”
@@ -42,16 +43,16 @@ def generate_script(topic, language):
             - “校园猫的一天”
             - “如果老师变成了学生”
 
-            你现在的任务是根据用户的校园创意，输出一个短篇故事。
+            你现在的任务是根据用户的校园创意，输出一个短篇故事。再次强调，不要使用剧本格式，不要使用括号或旁白风格的动作描述，不要加上“旁白：”或“（人物说话）”等格式。不要出现台词或人物说话格式。只输出一段自然、优美、仿佛出自小说或说书人之口的连续文字
 
             格式：
             只输出一个 JSON 对象，如：
-            {"script": "这是一个精彩又细节丰富的剧本..."}
+            {"script": "一天清晨..."}
             """
         )
     else:
         prompt = (
-            """USE ONLY ENGLISH. You are an expert creative writer and digital content assistant specialized in transforming user ideas about campus life into engaging and imaginative **short stories** (approximately 100 words).
+            """USE ONLY ENGLISH. You are an expert creative writer and digital content assistant specialized in transforming user ideas about campus life into engaging and imaginative **short stories** (strictly 100 words).
 
         Your goal is to help users generate high-quality, personalized short narratives that can be turned into short videos using multimodal AI and agent-based systems.
 
@@ -70,6 +71,12 @@ def generate_script(topic, language):
         - "If a professor turned into a student"
 
         Your task is to generate a compact, engaging short story based on the user's campus idea.
+        ❗ Strict rules:
+        - Do **not** use script format, stage directions, or parenthetical actions (e.g., (she walks in)).
+        - Do **not** include any character dialogue in quotation marks or labeled lines.
+        - Write it as if it’s told by a storyteller or in a short fiction passage.
+        - The result should be a single, fluid, immersive prose paragraph, like in a storybook or novel.
+        - 100 words
 
         Format:
         Only return a single valid JSON object with the key "script", for example:
