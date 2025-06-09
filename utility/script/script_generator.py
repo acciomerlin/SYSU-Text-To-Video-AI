@@ -6,10 +6,12 @@ from openai import OpenAI
 if len(os.environ.get("GROQ_API_KEY")) > 30:
     from groq import Groq
 
-    model = "deepseek-r1-distill-llama-70b"
+    print(os.environ.get("GROQ_API_KEY"))
+    model = "qwen-qwq-32b"
     client = Groq(
         api_key=os.environ.get("GROQ_API_KEY")
     )
+
 else:
     OPENAI_API_KEY = os.getenv('OPENAI_KEY')
     model = "gpt-4o"
@@ -89,7 +91,8 @@ def generate_script(topic, language):
         messages=[
             {"role": "system", "content": prompt},
             {"role": "user", "content": topic}
-        ]
+        ],
+
     )
     content = response.choices[0].message.content
     print("[原始输出]:", content)

@@ -1,9 +1,12 @@
 import asyncio
+import os
 import traceback
 import re
 import streamlit as st
 from dotenv import load_dotenv
 import streamlit.components.v1 as components
+import requests
+import time
 
 load_dotenv()
 
@@ -14,11 +17,54 @@ from utility.video.background_video_generator import generate_video_url
 from utility.video.video_search_query_generator import getVideoSearchQueriesTimed, merge_empty_intervals
 from utility.render.render_engine import get_output_media
 
+
 def generate_all_caption_images_placeholder():
     # TODO: 实现生成所有字幕对应图的逻辑
     pass
 
-def generate_single_caption_image_placeholder():
+
+def generate_single_caption_image_placeholder(txt):
+    API_KEY = os.getenv('FLUX_API_KEY')
+    API_BASE = "https://api.piapi.ai/api/v1"
+    # 1. 提交生成任务
+    headers = {
+        "Content-Type": "application/json",
+        "x-api-key": API_KEY
+    }
+    payload = {
+        "model": "Qubico/flux1-dev",
+        "task_type": "txt2img",
+        "input": {
+            "prompt": txt,
+            "width": 1024,
+            "height": 1024
+        }
+    }
+
+    response = requests.post(f"{API_BASE}/task", json=payload, headers=headers)
+    if response.status_code != 200:
+        raise Exception(f"Failed to submit task: {response.text}")
+
+    task_id = response.json()["data"]["task_id"]
+    print(f"Task submitted. Task ID: {task_id}")
+
+    # 2. 轮询任务状态
+    while True:
+        time.sleep(3)
+        poll_response = requests.get(f"{API_BASE}/task/{task_id}", headers={"x-api-key": API_KEY})
+        if poll_response.status_code != 200:
+            raise Exception(f"Polling failed: {poll_response.text}")
+
+        task_data = poll_response.json()["data"]
+        status = task_data["status"]
+        print(f"Task status: {status}")
+
+        if status == "completed":
+            image_url = task_data["output"]["image_url"]
+            print(f"Image generated: {image_url}")
+            return image_url
+        elif status in ["failed", "retry"]:
+            raise Exception(f"Task failed or needs retry: {task_data}")
     # TODO: 实现每个字幕单独生成图的逻辑
     pass
 
@@ -33,6 +79,7 @@ def is_valid_input(language: str, text: str) -> bool:
     elif language == "中文":
         return bool(re.match(r"[\u4e00-\u9fff]", text[0]))
     return False
+
 
 # ========== Streamlit UI ==========
 st.title("🎬 校园AI短视频生成器")
@@ -96,7 +143,8 @@ if topic:
         if st.session_state.audio_path and st.button("3️⃣ 生成字幕"):
             with st.spinner("生成字幕中..."):
                 try:
-                    st.session_state.captions = generate_timed_captions(st.session_state.audio_path, st.session_state.script, "base",language)
+                    st.session_state.captions = generate_timed_captions(st.session_state.audio_path,
+                                                                        st.session_state.script, "base", language)
                     st.success("✅ 字幕生成完成")
                 except Exception as e:
                     st.error(f"❌ 字幕生成出错: {e}")
@@ -108,16 +156,31 @@ if topic:
 
         if st.session_state.captions:
             st.markdown("#### 📑 字幕列表")
+            if "captions" not in st.session_state:
+                st.session_state.captions = [([0.0, 2.5], "Hello"), ([2.5, 5.0], "World")]
 
+            # 初始化 URL 数组（与 captions 等长）
+            if "caption_img_urls" not in st.session_state:
+                st.session_state.caption_img_urls = [""] * len(st.session_state.captions)
+
+            # 一键生成按钮
             col_all, _ = st.columns([2, 6])
             with col_all:
                 if st.button("🖼️ 一键生成所有字幕图"):
                     try:
-                        generate_all_caption_images_placeholder()
-                        st.success("✅ 所有字幕图生成完成（待实现）")
+                        for idx, item in enumerate(st.session_state.captions):
+                            if st.session_state.caption_img_urls[idx] == "":
+                                if isinstance(item, (list, tuple)) and len(item) == 2:
+                                    _, text = item
+                                    image_url = generate_single_caption_image_placeholder(text)
+                                    st.session_state.caption_img_urls[idx] = image_url
+                                    st.info(f"✅ 第 {idx} 条字幕图生成成功")
+                                    st.write(st.session_state.caption_img_urls)  # 🔍 打印当前数组
+                        st.success("✅ 所有字幕图生成完成")
                     except Exception as e:
                         st.error(f"❌ 批量生成字幕图失败: {e}")
 
+            # 单独逐条生成
             for idx, item in enumerate(st.session_state.captions):
                 if isinstance(item, (list, tuple)) and len(item) == 2:
                     time_range, text = item
@@ -130,11 +193,27 @@ if topic:
                             st.markdown(f"**[{round(start, 2)}s - {round(end, 2)}s]** {text}")
                         with col2:
                             if st.button("生成图", key=f"caption_img_{idx}"):
-                                st.info(f"你点击了第 {idx} 个字幕图按钮（待实现）")
+                                st.info(f"你点击了第 {idx} 个字幕图按钮")
+                                try:
+                                    image_url = generate_single_caption_image_placeholder(text)
+                                    st.session_state.caption_img_urls[idx] = image_url
+                                    st.success(f"✅ 字幕 {idx + 1} 图像生成成功")
+                                except Exception as e:
+                                    st.error(f"图片生成失败：{e}")
+
+                        # 展示图像
+                        if st.session_state.caption_img_urls[idx]:
+                            st.image(st.session_state.caption_img_urls[idx], caption=f"字幕图像 {idx + 1}",
+                                     use_container_width=True)
                     else:
                         st.warning(f"⛔ 第 {idx} 条字幕时间范围格式错误：{time_range}")
                 else:
                     st.warning(f"⚠️ 第 {idx} 条字幕结构异常：{item}")
+
+            # 👇 每次渲染都打印一次数组（调试用）
+            st.markdown("### 🧾 当前字幕图像 URL 列表")
+            # 这个列表里存了字母的idx和对应的图片url， 如果图片没有生成url串就是空。
+            st.write(st.session_state.caption_img_urls)
 
         # 4. 生成关键词
         if st.session_state.script and st.session_state.captions and st.button("4️⃣ 生成视频搜索关键词"):
@@ -184,4 +263,3 @@ if topic:
         # 最终视频预览
         if st.session_state.final_video:
             st.video(st.session_state.final_video)
-
