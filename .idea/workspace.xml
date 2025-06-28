@@ -6,7 +6,15 @@
   <component name="ChangeListManager">
     <list default="true" id="331aa8b9-778e-4617-9cc7-896aa36070dc" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+<<<<<<< Updated upstream
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+=======
+      <change beforePath="$PROJECT_DIR$/.idea/SYSU-Text-To-Video-AI.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SYSU-Text-To-Video-AI.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utility/captions/timed_captions_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/utility/captions/timed_captions_generator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utility/script/script_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/utility/script/script_generator.py" afterDir="false" />
+>>>>>>> Stashed changes
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,7 +27,11 @@
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
 }</component>
+<<<<<<< Updated upstream
   <component name="ProjectId" id="2yVECfZmAxBrHuvfu2vZziGFLHK" />
+=======
+  <component name="ProjectId" id="2ydgMGgfvOwx6Dypoj6DKvIPJx0" />
+>>>>>>> Stashed changes
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -28,11 +40,15 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+<<<<<<< Updated upstream
     &quot;last_opened_file_path&quot;: &quot;D:/my-repo/SYSU-Text-To-Video-AI&quot;,
+=======
+>>>>>>> Stashed changes
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+<<<<<<< Updated upstream
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -46,6 +62,17 @@
       <set>
         <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-PY-241.14494.241" />
         <option value="bundled-python-sdk-0509580d9d50-28c9f5db9ffe-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.14494.241" />
+=======
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.IDE.editor.colors.Color Scheme Font&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-PY-241.17890.14" />
+        <option value="bundled-python-sdk-5b207ade9991-7e9c3bbb6e34-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.17890.14" />
+>>>>>>> Stashed changes
       </set>
     </attachedChunks>
   </component>
@@ -53,6 +80,7 @@
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="331aa8b9-778e-4617-9cc7-896aa36070dc" name="Changes" comment="" />
+<<<<<<< Updated upstream
       <created>1749911214115</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -62,6 +90,17 @@
       <workItem from="1750064781432" duration="1714000" />
       <workItem from="1750128375310" duration="719000" />
       <workItem from="1751075261717" duration="469000" />
+=======
+      <created>1750169815093</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1750169815093</updated>
+      <workItem from="1750169817042" duration="880000" />
+      <workItem from="1750170985853" duration="3662000" />
+      <workItem from="1750237029371" duration="1052000" />
+      <workItem from="1751003562841" duration="1720000" />
+      <workItem from="1751034797637" duration="7466000" />
+>>>>>>> Stashed changes
     </task>
     <servers />
   </component>

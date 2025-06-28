@@ -64,7 +64,7 @@ def split_script_into_captions(script: str, language: int = 0) -> list:
     captions = []
     if language == 1:
         # 中文切分：使用中文逗号、句号、顿号作为断句点
-        segments = re.split(r'(，|。|、)', script)
+        segments = re.split(r'(,|。|、)', script)
         buffer   = ""
         for seg in segments:
             if seg in ['，', '。', '、']:

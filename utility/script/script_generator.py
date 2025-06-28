@@ -1,88 +1,71 @@
 import os
 
-from langdetect import detect
 from openai import OpenAI
-
-if len(os.environ.get("GROQ_API_KEY")) > 30:
-    from groq import Groq
-
-    print(os.environ.get("GROQ_API_KEY"))
-    model = "qwen-qwq-32b"
-    client = Groq(
-        api_key=os.environ.get("GROQ_API_KEY")
-    )
-
-else:
-    OPENAI_API_KEY = os.getenv('OPENAI_KEY')
-    model = "gpt-4o"
-    client = OpenAI(api_key=OPENAI_API_KEY)
 
 
 def generate_script(topic, language):
-    is_chinese = 0
-    if language == 1:
-        is_chinese = 1
+    deepseek_api_key = os.getenv("DEEPSEEK_API_KEY")
+
+    if deepseek_api_key:
+        print("使用 DeepSeek]")
+        client = OpenAI(
+            api_key=deepseek_api_key,
+            base_url="https://api.deepseek.com/v1"
+        )
+        model = "deepseek-chat"
+    else:
+        print("没找到DeepSeek API key,返回]")
+        raise EnvironmentError("未设置 DEEPSEEK_API_KEY 环境变量，请检查 .env 文件或系统环境变量")
 
     # 根据语言选择 prompt
-    if is_chinese:
+    if language == 1:  # 中文
         prompt = (
-            """你是一位擅长创意写作和数字内容创作的专家，专门将用户关于校园生活的想法转化为精彩的短视频短篇小说（约 100 字以内）。
+            """你是一位擅长创意写作和短诗创作的专家，专门将用户关于校园生活的创意转化为“五句子押韵打油诗”形式的校园小故事。
 
-            你的目标是帮助用户生成高质量、吸引人的个性化剧本，这些剧本将用于通过多模态 AI 和 Agent 系统自动生成视频。
-
-            用户会简单描述一个校园场景的创意。你需要将其扩展为完整短篇故事，内容包含：
-            - 角色（例如学生、教授、社团成员等）
-            - 场景（如教室、图书馆、食堂、宿舍等）
-            - 情节结构（开头、转折、高潮、结尾）
-            - 如有需要，可加入简单的动作与对话
-
-            短篇故事应具有画面感和情绪张力，适合转换为真实校园视频、动画或风格化画面。可以创意搞笑，也可以温馨感人。
-            不要使用剧本格式，不要使用括号或旁白风格的动作描述，不要加上“旁白：”或“（人物说话）”等格式。不要出现台词或人物说话格式。只输出一段自然、优美、仿佛出自小说或说书人之口的连续文字
-
-            例如用户输入：
-            - “考试周的崩溃瞬间”
-            - “新生开学第一天的迷路事件”
-            - “校园猫的一天”
-            - “如果老师变成了学生”
-
-            你现在的任务是根据用户的校园创意，输出一个短篇故事。再次强调，不要使用剧本格式，不要使用括号或旁白风格的动作描述，不要加上“旁白：”或“（人物说话）”等格式。不要出现台词或人物说话格式。只输出一段自然、优美、仿佛出自小说或说书人之口的连续文字
-
-            格式：
-            只输出一个 JSON 对象，如：
-            {"script": "一天清晨..."}
+                你的目标是根据用户输入的简单校园创意，生成一首内容连贯、有画面感、带有故事性和情绪张力的五句打油诗。诗歌需要符合以下要求：
+                - 共五句，每句内容尽量精炼生动
+                - 每句结尾押韵（可用 AABBA、AAAAA 或 ABABA 等常见格式）
+                - 内容包含角色（如学生、老师、社团成员）、场景（如食堂、图书馆、教室、操场）和简单情节（如误会、巧遇、出糗、突发事件等）
+                - 可以是搞笑、感人或反转，适合转化为短视频内容
+                
+                输出格式必须是一个 JSON 对象，如：
+                {"script": "第一句，第二句，第三句，第四句，第五句。"}
+                
+                不要输出多首，不要输出解释或多余信息。每次只生成一首五句打油诗。
+                
+                用户输入将是一个校园创意关键词或简短描述，例如：
+                - “考试周的精神崩溃”
+                - “迎新晚会的乌龙现场”
+                - “图书馆偶遇暗恋对象”
+                - “老师变成了学生”
+                
+                现在，请根据用户的输入创作一首五句子押韵的打油诗校园小故事。
             """
         )
     else:
         prompt = (
-            """USE ONLY ENGLISH. You are an expert creative writer and digital content assistant specialized in transforming user ideas about campus life into engaging and imaginative **short stories** (strictly 100 words).
+            """You are an expert in creative writing and poetic storytelling, specializing in transforming users’ campus-life ideas into five-line rhyming limerick-style stories.
 
-        Your goal is to help users generate high-quality, personalized short narratives that can be turned into short videos using multimodal AI and agent-based systems.
-
-        The user will briefly describe a creative idea about a campus scenario. You will develop it into a vivid, emotionally engaging short story, including:
-        - Characters (e.g., students, professors, club members)
-        - Setting (e.g., classroom, dormitory, library, cafeteria)
-        - Basic plot structure (intro, twist, climax, and conclusion)
-        - Optional light action or dialogue to enhance storytelling
-
-        The story should have visual and emotional appeal, suitable for conversion into video content (live-action, animated, or stylized). It can be humorous, touching, or imaginative.
-
-        Example user prompts:
-        - "A breakdown moment during exam week"
-        - "A freshman lost on the first day"
-        - "A day in the life of a campus cat"
-        - "If a professor turned into a student"
-
-        Your task is to generate a compact, engaging short story based on the user's campus idea.
-        ❗ Strict rules:
-        - Do **not** use script format, stage directions, or parenthetical actions (e.g., (she walks in)).
-        - Do **not** include any character dialogue in quotation marks or labeled lines.
-        - Write it as if it’s told by a storyteller or in a short fiction passage.
-        - The result should be a single, fluid, immersive prose paragraph, like in a storybook or novel.
-        - 100 words
-
-        Format:
-        Only return a single valid JSON object with the key "script", for example:
-        {"script": "Here is a vivid and emotionally engaging short story..."}
+            Your goal is to generate a vivid, emotionally engaging, and story-rich five-line poem based on a simple campus-related prompt provided by the user. The poem must meet the following criteria:
+            - Exactly five lines, each line concise and vivid
+            - Lines should end in rhyming words (using common rhyme schemes like AABBA, AAAAA, or ABABA)
+            - Content should include characters (e.g., student, teacher, club member), campus settings (e.g., cafeteria, library, classroom, dorm), and a light narrative arc (e.g., misunderstanding, surprise, mishap, emotional turn)
+            - The tone can be humorous, touching, or surprising, suitable for short video adaptation
+            - Exactly five lines, each line concise and vivid
+            - Exactly five lines, each line concise and vivid
+            
+            Your output must be a single JSON object, like:
+            {"script": "First line.Second line.Third line.Fourth line.Fifth line."}
+            
+            Do not generate multiple poems. Do not include any explanations or extra text. Only output one five-line rhyming campus story each time.
+            
+            The user will provide a short prompt such as:
+            - "Mental breakdown during finals week"
+            - "Freshman orientation mishap"
+            - "Crush encounter in the library"
+            - "When the teacher became a student"
+            
+            Now, based on the user’s input, generate one five-line rhyming campus story in the form of a limerick or poetic short tale.
         """
         )
 
