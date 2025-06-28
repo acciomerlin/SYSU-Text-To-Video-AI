@@ -7,3 +7,4 @@ __pycache__/
 *.wav
 *.png
 audio_tts.wav
+ffmpeg.exe

@@ -23,50 +23,38 @@ def generate_all_caption_images_placeholder():
     pass
 
 
+import os
+import requests
+from http import HTTPStatus
+from urllib.parse import urlparse, unquote
+from pathlib import PurePosixPath
+from dashscope import ImageSynthesis
+
 def generate_single_caption_image_placeholder(txt):
-    API_KEY = os.getenv('FLUX_API_KEY')
-    API_BASE = "https://api.piapi.ai/api/v1"
-    # 1. 提交生成任务
-    headers = {
-        "Content-Type": "application/json",
-        "x-api-key": API_KEY
-    }
-    payload = {
-        "model": "Qubico/flux1-dev",
-        "task_type": "txt2img",
-        "input": {
-            "prompt": txt,
-            "width": 1024,
-            "height": 1024
-        }
-    }
+    print('----DashScope sync call, please wait a moment----')
+    rsp = ImageSynthesis.call(
+        api_key=os.getenv("DASHSCOPE_API_KEY"),
+        model="wanx2.1-t2i-turbo",
+        prompt=txt,
+        n=1,
+        size='1024*1024'
+    )
 
-    response = requests.post(f"{API_BASE}/task", json=payload, headers=headers)
-    if response.status_code != 200:
-        raise Exception(f"Failed to submit task: {response.text}")
+    if rsp.status_code == HTTPStatus.OK:
+        result = rsp.output.results[0]
+        image_url = result.url
+        print(f"Image generated: {image_url}")
 
-    task_id = response.json()["data"]["task_id"]
-    print(f"Task submitted. Task ID: {task_id}")
+        # 保存图片到本地（可选）
+        file_name = PurePosixPath(unquote(urlparse(image_url).path)).parts[-1]
+        with open(file_name, 'wb') as f:
+            f.write(requests.get(image_url).content)
+        print(f"Image saved as: {file_name}")
 
-    # 2. 轮询任务状态
-    while True:
-        time.sleep(3)
-        poll_response = requests.get(f"{API_BASE}/task/{task_id}", headers={"x-api-key": API_KEY})
-        if poll_response.status_code != 200:
-            raise Exception(f"Polling failed: {poll_response.text}")
+        return image_url  # 返回图片URL
+    else:
+        raise Exception(f"DashScope call failed: {rsp.status_code}, code: {rsp.code}, message: {rsp.message}")
 
-        task_data = poll_response.json()["data"]
-        status = task_data["status"]
-        print(f"Task status: {status}")
-
-        if status == "completed":
-            image_url = task_data["output"]["image_url"]
-            print(f"Image generated: {image_url}")
-            return image_url
-        elif status in ["failed", "retry"]:
-            raise Exception(f"Task failed or needs retry: {task_data}")
-    # TODO: 实现每个字幕单独生成图的逻辑
-    pass
 
 
 # ========== 输入检测 ==========
