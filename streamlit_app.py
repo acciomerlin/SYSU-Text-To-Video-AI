@@ -13,6 +13,8 @@ from urllib.parse import urlparse, unquote
 from pathlib import PurePosixPath
 from dotenv import load_dotenv
 from dashscope import ImageSynthesis
+from moviepy.video.VideoClip import TextClip
+from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
 
 from utility.script.script_generator import generate_script
 
@@ -23,6 +25,8 @@ VIDU_API_KEY = os.getenv("VIDU_API_KEY")
 IMGBB_API_KEY = os.getenv("IMGBB_API_KEY")
 VIDU_API_BASE = "https://api.vidu.cn/ent/v2"
 POLL_INTERVAL = 5
+# 替换成你自己的ImageMagick 安装路径
+os.environ["IMAGEMAGICK_BINARY"] = r"D:\Program Files\ImageMagick-7.1.1-Q16\magick.exe"
 
 st.set_page_config(page_title="校园AI短视频生成器", layout="centered")
 st.title("🎬 校园AI短视频生成器")
@@ -106,6 +110,7 @@ def generate_audio(prompt, duration=5.0, seed=0):
 import os
 import tempfile
 import requests
+import shutil
 from moviepy.editor import VideoFileClip, AudioFileClip, concatenate_videoclips, concatenate_audioclips
 
 
@@ -127,12 +132,71 @@ def download_file(url, folder, prefix):
     return local_path
 
 
-def merge_videos_and_audios(video_urls, audio_urls):
-    # 临时目录存放下载文件
-    with tempfile.TemporaryDirectory() as tmpdir:
-        video_clips = []
-        audio_clips = []
+# def merge_videos_and_audios(video_urls, audio_urls,captions):
+#     # 临时目录存放下载文件
+#     with tempfile.TemporaryDirectory() as tmpdir:
+#         video_clips = []
+#         audio_clips = []
+#
+#         # 下载视频和音频，读取为moviepy对象
+#         for i, (v_url, a_url) in enumerate(zip(video_urls, audio_urls)):
+#             v_path = download_file(v_url, tmpdir, f"video{i}")
+#             a_path = download_file(a_url, tmpdir, f"audio{i}")
+#
+#             video_clip = VideoFileClip(v_path)
+#             audio_clip = AudioFileClip(a_path)
+#
+#             # 添加字幕（使用 TextClip 叠加到视频上）
+#             text = captions[i]
+#             subtitle = TextClip(
+#                 txt=text,
+#                 fontsize=38,
+#                 font="黑体",  # Windows下建议使用 SimHei（黑体），或你本机已有的中文字体
+#                 color='white',
+#                 stroke_color='black',
+#                 # stroke_width=2,
+#                 method='label'
+#             ).set_position(("center", "bottom")).set_duration(video_clip.duration)
+#
+#             # 合并字幕和视频
+#             composite_clip = CompositeVideoClip([video_clip, subtitle])
+#
+#             video_clips.append(composite_clip)
+#             audio_clips.append(audio_clip)
+#
+#         # 合并视频
+#         final_video = concatenate_videoclips(video_clips, method="compose")
+#
+#         # 合并音频
+#         final_audio = concatenate_audioclips(audio_clips)
+#
+#         # 设置合成后的音频到视频
+#         final_video = final_video.set_audio(final_audio)
+#
+#         # 导出最终视频文件
+#         output_path = os.path.join(tmpdir, "final_video.mp4")
+#         final_video.write_videofile(output_path, codec="libx264", audio_codec="aac")
+#
+#         # 释放资源
+#         for clip in video_clips + audio_clips:
+#             clip.close()
+#         final_video.close()
+#         final_audio.close()
+#
+#         # 读取导出文件的二进制，用于streamlit播放
+#         with open(output_path, "rb") as f:
+#             video_bytes = f.read()
+#
+#         return video_bytes
 
+def merge_videos_and_audios(video_urls, audio_urls, captions):
+    # 临时目录
+    tmpdir = "temp_merge"
+    os.makedirs(tmpdir, exist_ok=True)
+
+    video_clips = []
+
+    try:
         # 下载视频和音频，读取为moviepy对象
         for i, (v_url, a_url) in enumerate(zip(video_urls, audio_urls)):
             v_path = download_file(v_url, tmpdir, f"video{i}")
@@ -141,33 +205,35 @@ def merge_videos_and_audios(video_urls, audio_urls):
             video_clip = VideoFileClip(v_path)
             audio_clip = AudioFileClip(a_path)
 
-            video_clips.append(video_clip)
-            audio_clips.append(audio_clip)
+            text = captions[i]
+            subtitle = TextClip(
+                txt=text,
+                fontsize=48,
+                font="SimHei",  # 黑体
+                color='white',
+                stroke_color='black',
+                method='label'
+            ).set_position(("center", video_clip.h - 150)).set_duration(video_clip.duration)
 
-        # 合并视频
+            composite_clip = CompositeVideoClip([video_clip, subtitle])
+            composite_clip = composite_clip.set_audio(audio_clip)
+
+            video_clips.append(composite_clip)
+
         final_video = concatenate_videoclips(video_clips, method="compose")
 
-        # 合并音频
-        final_audio = concatenate_audioclips(audio_clips)
-
-        # 设置合成后的音频到视频
-        final_video = final_video.set_audio(final_audio)
-
-        # 导出最终视频文件
         output_path = os.path.join(tmpdir, "final_video.mp4")
-        final_video.write_videofile(output_path, codec="libx264", audio_codec="aac")
+        final_video.write_videofile(output_path, codec="libx264", audio_codec="aac", fps=25)
 
-        # 释放资源
-        for clip in video_clips + audio_clips:
-            clip.close()
-        final_video.close()
-        final_audio.close()
-
-        # 读取导出文件的二进制，用于streamlit播放
+        # 读取视频二进制
         with open(output_path, "rb") as f:
             video_bytes = f.read()
 
         return video_bytes
+
+    finally:
+        # 清理临时文件夹（调试时可以注释掉）
+        shutil.rmtree(tmpdir, ignore_errors=True)
 
 
 # ========== 主流程 ==========
@@ -318,9 +384,31 @@ if topic:
             if all_video_ready and all_audio_ready:
                 st.markdown("## 🤩 生成最终短视频")
                 if st.button("## 🎬 合成最终视频"):
-                    try:
-                        video_data = merge_videos_and_audios(st.session_state.video_urls, st.session_state.audio_urls)
-                        st.success("✅ 合成完成！播放最终视频：")
-                        st.video(video_data)
-                    except Exception as e:
-                        st.error(f"合成失败：{e}")
+                    with st.status("🎬 视频合成中，请稍候...", expanded=True) as status:
+                        try:
+                            # 原始数据
+                            video_urls = st.session_state.video_urls
+                            audio_urls = st.session_state.audio_urls
+                            captions = st.session_state.scene_texts
+
+                            # ✅ 只保留那些视频和音频都已生成的场景
+                            # 出于测试目的（在不是5个场景都生成的时候，测试时），只暂时拼接其中几个场景
+                            valid_data = [
+                                (v, a, c) for v, a, c in zip(video_urls, audio_urls, captions)
+                                if v is not None and a is not None
+                            ]
+
+                            # 拆分成各自列表
+                            video_urls_filtered, audio_urls_filtered, captions_filtered = zip(*valid_data)
+
+                            video_data = merge_videos_and_audios(
+                                video_urls_filtered,
+                                audio_urls_filtered,
+                                captions_filtered  # 👈 添加字幕参数
+                            )
+                            st.success("✅ 合成完成！播放最终视频：")
+                            st.video(video_data)
+                            status.update(label="✅ 合成完成", state="complete")
+                        except Exception as e:
+                            st.error(f"❌ 合成失败：{e}")
+                            status.update(label="❌ 合成失败", state="error")

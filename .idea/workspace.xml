@@ -4,17 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="331aa8b9-778e-4617-9cc7-896aa36070dc" name="Changes" comment="">
+    <list default="true" id="a67939a4-45e8-451d-9588-639250dc5bf3" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
-<<<<<<< Updated upstream
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-=======
       <change beforePath="$PROJECT_DIR$/.idea/SYSU-Text-To-Video-AI.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SYSU-Text-To-Video-AI.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utility/captions/timed_captions_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/utility/captions/timed_captions_generator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utility/script/script_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/utility/script/script_generator.py" afterDir="false" />
->>>>>>> Stashed changes
+      <change beforePath="$PROJECT_DIR$/streamlit_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/streamlit_app.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,90 +19,41 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 6
-}</component>
-<<<<<<< Updated upstream
-  <component name="ProjectId" id="2yVECfZmAxBrHuvfu2vZziGFLHK" />
-=======
-  <component name="ProjectId" id="2ydgMGgfvOwx6Dypoj6DKvIPJx0" />
->>>>>>> Stashed changes
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 0
+}]]></component>
+  <component name="ProjectId" id="2zDvm4WiBQEbU6YMsQn3tzq4PuR" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-<<<<<<< Updated upstream
-    &quot;last_opened_file_path&quot;: &quot;D:/my-repo/SYSU-Text-To-Video-AI&quot;,
-=======
->>>>>>> Stashed changes
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-<<<<<<< Updated upstream
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master"
   }
-}</component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="D:\my-repo\SYSU-Text-To-Video-AI" />
-    </key>
-  </component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-PY-241.14494.241" />
-        <option value="bundled-python-sdk-0509580d9d50-28c9f5db9ffe-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.14494.241" />
-=======
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.IDE.editor.colors.Color Scheme Font&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
-  }
-}</component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-PY-241.17890.14" />
-        <option value="bundled-python-sdk-5b207ade9991-7e9c3bbb6e34-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.17890.14" />
->>>>>>> Stashed changes
+        <option value="bundled-python-sdk-d68999036c7f-d3b881c8e49f-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-233.14475.56" />
       </set>
     </attachedChunks>
   </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
-    <task active="true" id="Default" summary="Default task">
-      <changelist id="331aa8b9-778e-4617-9cc7-896aa36070dc" name="Changes" comment="" />
-<<<<<<< Updated upstream
-      <created>1749911214115</created>
+    <task active="true" id="Default" summary="默认任务">
+      <changelist id="a67939a4-45e8-451d-9588-639250dc5bf3" name="更改" comment="" />
+      <created>1751278615272</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1749911214115</updated>
-      <workItem from="1749911215211" duration="1279000" />
-      <workItem from="1750001914415" duration="83000" />
-      <workItem from="1750064781432" duration="1714000" />
-      <workItem from="1750128375310" duration="719000" />
-      <workItem from="1751075261717" duration="469000" />
-=======
-      <created>1750169815093</created>
-      <option name="number" value="Default" />
-      <option name="presentableId" value="Default" />
-      <updated>1750169815093</updated>
-      <workItem from="1750169817042" duration="880000" />
-      <workItem from="1750170985853" duration="3662000" />
-      <workItem from="1750237029371" duration="1052000" />
-      <workItem from="1751003562841" duration="1720000" />
-      <workItem from="1751034797637" duration="7466000" />
->>>>>>> Stashed changes
+      <updated>1751278615272</updated>
     </task>
     <servers />
-  </component>
-  <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="3" />
-  </component>
-  <component name="VcsManagerConfiguration">
-    <option name="LAST_COMMIT_MESSAGE" value="" />
   </component>
 </project>
