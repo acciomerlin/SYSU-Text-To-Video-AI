@@ -20,54 +20,42 @@ def generate_script(topic, language):
     # 根据语言选择 prompt
     if language == 1:  # 中文
         prompt = (
-            """你是一位擅长创意写作和短诗创作的专家，专门将用户关于校园生活的创意转化为“五句子押韵打油诗”形式的校园小故事。
+            """你是一位擅长创意写作和绘本创作的专家，专门将校园相关的创意转化为“五句话的绘本故事”。
 
-                你的目标是根据用户输入的简单校园创意，生成一首内容连贯、有画面感、带有故事性和情绪张力的五句打油诗。诗歌需要符合以下要求：
-                - 共五句，每句内容尽量精炼生动
-                - 每句结尾押韵（可用 AABBA、AAAAA 或 ABABA 等常见格式）
-                - 内容包含角色（如学生、老师、社团成员）、场景（如食堂、图书馆、教室、操场）和简单情节（如误会、巧遇、出糗、突发事件等）
-                - 可以是搞笑、感人或反转，适合转化为短视频内容
+                你的任务是根据用户输入的简短校园主题，生成一个连贯、有画面感、适合短视频制作的校园绘本小故事，格式要求如下：
+                
+                - 故事共五句话，每句都是一个完整的场景描述；
+                - 每句话应以句号结尾；
+                - 每句话包含清晰的主语和动作，符合绘本语言风格，富有画面感，并且注意几个场景间逻辑通顺；
+                - 内容贴合校园生活（如：教室、图书馆、操场、食堂、社团等场景）；
+                - 适合视频配图配音，每句话朗读约 4–5 秒，总时长控制在 20–25 秒。
                 
                 输出格式必须是一个 JSON 对象，如：
-                {"script": "第一句，第二句，第三句，第四句，第五句。"}
+                {"script": "第一句。第二句。第三句。第四句。第五句。"}
                 
-                不要输出多首，不要输出解释或多余信息。每次只生成一首五句打油诗。
+                不要输出解释或多余信息，只输出一个完整的五句话绘本故事。
                 
-                用户输入将是一个校园创意关键词或简短描述，例如：
-                - “考试周的精神崩溃”
-                - “迎新晚会的乌龙现场”
-                - “图书馆偶遇暗恋对象”
-                - “老师变成了学生”
-                
-                现在，请根据用户的输入创作一首五句子押韵的打油诗校园小故事。
+                现在，请根据用户输入的校园主题生成一个五句话的校园绘本小故事。
             """
         )
     else:
-        prompt = (
-            """You are an expert in creative writing and poetic storytelling, specializing in transforming users’ campus-life ideas into five-line rhyming limerick-style stories.
+        prompt = """
+        You are a skilled children's picture book writer. Your task is to turn a short campus-related idea into a five-sentence illustrated story suitable for short video generation.
 
-            Your goal is to generate a vivid, emotionally engaging, and story-rich five-line poem based on a simple campus-related prompt provided by the user. The poem must meet the following criteria:
-            - Exactly five lines, each line concise and vivid
-            - Lines should end in rhyming words (using common rhyme schemes like AABBA, AAAAA, or ABABA)
-            - Content should include characters (e.g., student, teacher, club member), campus settings (e.g., cafeteria, library, classroom, dorm), and a light narrative arc (e.g., misunderstanding, surprise, mishap, emotional turn)
-            - The tone can be humorous, touching, or surprising, suitable for short video adaptation
-            - Exactly five lines, each line concise and vivid
-            - Exactly five lines, each line concise and vivid
-            
-            Your output must be a single JSON object, like:
-            {"script": "First line.Second line.Third line.Fourth line.Fifth line."}
-            
-            Do not generate multiple poems. Do not include any explanations or extra text. Only output one five-line rhyming campus story each time.
-            
-            The user will provide a short prompt such as:
-            - "Mental breakdown during finals week"
-            - "Freshman orientation mishap"
-            - "Crush encounter in the library"
-            - "When the teacher became a student"
-            
-            Now, based on the user’s input, generate one five-line rhyming campus story in the form of a limerick or poetic short tale.
+        Requirements:
+        - The story must have exactly five complete sentences, each describing a distinct scene or action;
+        - Each sentence must end with a period (".");
+        - The tone should be gentle and visual, like a picture book;
+        - The story should include elements of school life (e.g., classroom, library, cafeteria, sports field, student clubs);
+        - Each sentence should take about 4–5 seconds to read aloud, for a total video duration of 20–25 seconds.
+
+        Output format must be a single JSON object like:
+        {"script": "First sentence. Second sentence. Third sentence. Fourth sentence. Fifth sentence."}
+
+        Do not output any explanation, only return the five-sentence story.
+
+        Now, based on the user's input, please generate a five-sentence campus picture-book style story.
         """
-        )
 
     response = client.chat.completions.create(
         model=model,
