@@ -11,7 +11,6 @@ class SimpleHistory:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         entry = (timestamp, url, label)
         st.session_state[self.key].append(entry)
-        st.rerun()
 
     def render(self):
         st.sidebar.markdown("## 🕘 历史记录")

@@ -303,11 +303,17 @@ if topic:
                             progress.progress((idx + 1) / len(st.session_state.scene_texts),
                                               text=f"已完成第 {idx + 1}/{len(st.session_state.scene_texts)} 张")
                             # st.image(url, caption=text, use_container_width=True)
-                            history.add_record(url, label=f"🖼️ 场景 {idx + 1} - {text[:10]} 图片")
                         except Exception as e:
                             st.warning(f"第 {idx + 1} 张生成失败：{e}")
                     progress.empty()
                     st.success("🎉 所有图片生成完成")
+                    for idx, (url, text) in enumerate(zip(st.session_state.image_urls, st.session_state.scene_texts)):
+                        print(f"{url}")
+                        if url is not None:
+                            history.add_record(url, label=f"🖼️ 场景 {idx + 1} - {text[:10]} 图片")
+                        else:
+                            st.warning("当前资源未生成成功，跳过展示/处理")
+                    st.rerun()
 
         # --- 展示每张图 + 生成视频/音频按钮 ---
         if st.session_state.image_urls:
@@ -321,7 +327,10 @@ if topic:
             for idx, (img_url, text) in enumerate(zip(st.session_state.image_urls, st.session_state.scene_texts)):
                 with st.container():
                     st.markdown(f"### 场景{idx + 1}图片")
-                    st.image(img_url, caption=text, use_container_width=True)
+                    if img_url:
+                        st.image(img_url, caption=text, use_container_width=True)
+                    else:
+                        st.warning(f"⚠️ 场景 {idx + 1} 图片未生成成功，无法展示")
 
                     cols = st.columns(2)
                     cols = st.columns(2)
@@ -353,6 +362,8 @@ if topic:
                                         video_url = poll.json()["creations"][0]["url"]
                                         st.session_state.video_urls[idx] = video_url
                                         poll_status.success(f"✅ 场景 {idx + 1} 视频生成成功")
+                                        history.add_record(video_url, label=f"🎞️场景 {idx + 1} {text[:10]} 视频下载")
+                                        st.rerun()
                                         break
                                     elif state == "failed":
                                         poll_status.error(f"❌ 场景 {idx + 1} 视频生成失败")
@@ -364,7 +375,6 @@ if topic:
 
                         if st.session_state.video_urls[idx]:
                             st.video(st.session_state.video_urls[idx], format="video/mp4")
-                            history.add_record(video_url, label=f"🎞️场景 {idx + 1} {text[:10]} 视频下载")
 
                     # 右边：生成音频按钮及展示
                     with cols[1]:
@@ -377,6 +387,7 @@ if topic:
                                 st.session_state.audio_urls[idx] = audio_url
                                 st.success(f"✅ 场景 {idx + 1}{text[:10]} 背景音生成成功")
                                 history.add_record(audio_url, label=f"🎵 场景 {idx + 1} {text[:10]} 音频下载")
+                                st.rerun()
 
                             except Exception as e:
                                 st.warning(f"❌ 场景 {idx + 1} 音频生成失败：{e}")
