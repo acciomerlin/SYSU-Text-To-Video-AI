@@ -16,6 +16,7 @@ from dashscope import ImageSynthesis
 from moviepy.video.VideoClip import TextClip
 from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
 
+from utility.history.history_manager import  SimpleHistory
 from utility.script.script_generator import generate_script
 
 # ========== 加载 .env 配置 ==========
@@ -209,7 +210,7 @@ def merge_videos_and_audios(video_urls, audio_urls, captions):
             subtitle = TextClip(
                 txt=text,
                 fontsize=48,
-                font="SimHei",  # 黑体
+                font="冬青黑體簡體中文-W3",  # 建议：Mac: 黑体 Windows: SimHei
                 color='white',
                 stroke_color='black',
                 method='label'
@@ -235,6 +236,9 @@ def merge_videos_and_audios(video_urls, audio_urls, captions):
         # 清理临时文件夹（调试时可以注释掉）
         shutil.rmtree(tmpdir, ignore_errors=True)
 
+# 历史记录功能初始化
+history = SimpleHistory()
+history.render()
 
 # ========== 主流程 ==========
 st.markdown("## 🖊️ 生成主题剧本")
@@ -248,6 +252,7 @@ if topic:
             with st.spinner("生成剧本中..."):
                 st.session_state.script = generate_script(topic, language)
                 st.success("✅ 剧本生成完成")
+
 
         if st.session_state.script:
             st.text_area("📜 剧本内容（只读）", st.session_state.script, height=150, disabled=True)
@@ -298,6 +303,7 @@ if topic:
                             progress.progress((idx + 1) / len(st.session_state.scene_texts),
                                               text=f"已完成第 {idx + 1}/{len(st.session_state.scene_texts)} 张")
                             # st.image(url, caption=text, use_container_width=True)
+                            history.add_record(url, label=f"🖼️ 场景 {idx + 1} - {text[:10]} 图片")
                         except Exception as e:
                             st.warning(f"第 {idx + 1} 张生成失败：{e}")
                     progress.empty()
@@ -358,6 +364,7 @@ if topic:
 
                         if st.session_state.video_urls[idx]:
                             st.video(st.session_state.video_urls[idx], format="video/mp4")
+                            history.add_record(video_url, label=f"🎞️场景 {idx + 1} {text[:10]} 视频下载")
 
                     # 右边：生成音频按钮及展示
                     with cols[1]:
@@ -368,7 +375,9 @@ if topic:
                                     prompt="舒缓小声的，音色干净的不要炸耳朵的，为" + text + "场景做的的轻快连贯重复不停的背景音乐",
                                     duration=5.0)
                                 st.session_state.audio_urls[idx] = audio_url
-                                st.success(f"✅ 场景 {idx + 1} 背景音生成成功")
+                                st.success(f"✅ 场景 {idx + 1}{text[:10]} 背景音生成成功")
+                                history.add_record(audio_url, label=f"🎵 场景 {idx + 1} {text[:10]} 音频下载")
+
                             except Exception as e:
                                 st.warning(f"❌ 场景 {idx + 1} 音频生成失败：{e}")
 
@@ -409,6 +418,12 @@ if topic:
                             st.success("✅ 合成完成！播放最终视频：")
                             st.video(video_data)
                             status.update(label="✅ 合成完成", state="complete")
+                            output_path = "/tmp/final_video.mp4"
+                            with open(output_path, "wb") as f:
+                                f.write(video_data)
+
+                            video_url = f"file://{output_path}"
+                            history.add_record(video_url, label=f"🎬 {topic} 合成视频下载")
                         except Exception as e:
                             st.error(f"❌ 合成失败：{e}")
                             status.update(label="❌ 合成失败", state="error")
