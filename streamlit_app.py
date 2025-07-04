@@ -16,7 +16,7 @@ from dashscope import ImageSynthesis
 from moviepy.video.VideoClip import TextClip
 from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
 
-from utility.history.history_manager import  SimpleHistory
+from utility.history.history_manager import SimpleHistory
 from utility.script.script_generator import generate_script
 
 # ========== 加载 .env 配置 ==========
@@ -37,9 +37,15 @@ topic = st.text_input("请输入你想要生成视频的校园主题", "")
 language = 1 if language_option == "中文" else 0
 
 # 会话变量初始化
-for key in ["script", "scene_texts", "image_urls", "video_urls"]:
+for key in ["script", "scene_texts", "image_urls", "video_urls", "final_video_data", "final_video_url","final_video_path"]:
     st.session_state.setdefault(key, None)
 
+def get_download_link(file_path, file_label):
+    with open(file_path, "rb") as f:
+        data = f.read()
+    b64 = base64.b64encode(data).decode()
+    href = f'<a href="data:video/mp4;base64,{b64}" download="{file_label}.mp4">📥 点击下载最终视频</a>'
+    return href
 
 # ========== 输入合法性检查 ==========
 def is_valid_input(language: str, text: str) -> bool:
@@ -236,6 +242,7 @@ def merge_videos_and_audios(video_urls, audio_urls, captions):
         # 清理临时文件夹（调试时可以注释掉）
         shutil.rmtree(tmpdir, ignore_errors=True)
 
+
 # 历史记录功能初始化
 history = SimpleHistory()
 history.render()
@@ -244,7 +251,10 @@ history.render()
 st.markdown("## 🖊️ 生成主题剧本")
 if topic:
     if not is_valid_input(language_option, topic):
-        st.error("❌ 输入格式错误")
+        if language_option == "中文":
+            st.error("❌ 输入格式错误：请输入以中文字符开头的内容，可包含中文标点（如：。！？）")
+        else:
+            st.error("❌ 输入格式错误：仅允许英文、数字、空格和标点符号（如 . , ! ? ' -）")
     else:
         st.success("✅ 输入格式合法")
 
@@ -252,7 +262,6 @@ if topic:
             with st.spinner("生成剧本中..."):
                 st.session_state.script = generate_script(topic, language)
                 st.success("✅ 剧本生成完成")
-
 
         if st.session_state.script:
             st.text_area("📜 剧本内容（只读）", st.session_state.script, height=150, disabled=True)
@@ -429,12 +438,17 @@ if topic:
                             st.success("✅ 合成完成！播放最终视频：")
                             st.video(video_data)
                             status.update(label="✅ 合成完成", state="complete")
+                            # 合成视频之后：
                             output_path = "/tmp/final_video.mp4"
                             with open(output_path, "wb") as f:
                                 f.write(video_data)
-
-                            video_url = f"file://{output_path}"
-                            history.add_record(video_url, label=f"🎬 {topic} 合成视频下载")
+                            st.session_state.final_video_path = output_path  # ✅ 保存路径
+                            history.add_record(output_path, label=f"🎬 {topic} 合成视频下载", is_file=True, filename="final_video")
+                            st.rerun()
                         except Exception as e:
                             st.error(f"❌ 合成失败：{e}")
                             status.update(label="❌ 合成失败", state="error")
+
+if st.session_state.final_video_path:
+    # st.markdown("✌️ 合成成功！！最终视频：")
+    st.video(st.session_state.final_video_path)
