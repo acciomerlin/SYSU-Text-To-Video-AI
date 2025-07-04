@@ -12,4 +12,3 @@ pip install -r requirements.txt
 streamlit run streamlit_app.py
 ``````
 
-streamlit_app.py里的两个api放群里了，有条件可以换成自己的分散免费api使用。

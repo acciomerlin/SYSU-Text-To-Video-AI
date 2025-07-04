@@ -1,25 +1,23 @@
-import asyncio
 import base64
-import json
 import os
 import re
+import shutil
+import time
 import uuid
-
+from http import HTTPStatus
+from pathlib import PurePosixPath
+from urllib.parse import urlparse, unquote
 import requests
 import streamlit as st
-import time
-from http import HTTPStatus
-from urllib.parse import urlparse, unquote
-from pathlib import PurePosixPath
-from dotenv import load_dotenv
 from dashscope import ImageSynthesis
+from dotenv import load_dotenv
+from moviepy.editor import VideoFileClip, AudioFileClip, concatenate_videoclips
 from moviepy.video.VideoClip import TextClip
 from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
-
 from utility.history.history_manager import SimpleHistory
 from utility.script.script_generator import generate_script
 
-# ========== 加载 .env 配置 ==========
+# 加载 .env
 load_dotenv()
 DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY")
 VIDU_API_KEY = os.getenv("VIDU_API_KEY")
@@ -29,16 +27,6 @@ POLL_INTERVAL = 5
 # 替换成你自己的ImageMagick 安装路径
 os.environ["IMAGEMAGICK_BINARY"] = r"D:\Program Files\ImageMagick-7.1.1-Q16\magick.exe"
 
-st.set_page_config(page_title="校园AI短视频生成器", layout="centered")
-st.title("🎬 校园AI短视频生成器")
-
-language_option = st.selectbox("请选择语言", ["中文", "English"])
-topic = st.text_input("请输入你想要生成视频的校园主题", "")
-language = 1 if language_option == "中文" else 0
-
-# 会话变量初始化
-for key in ["script", "scene_texts", "image_urls", "video_urls", "final_video_data", "final_video_url","final_video_path"]:
-    st.session_state.setdefault(key, None)
 
 def get_download_link(file_path, file_label):
     with open(file_path, "rb") as f:
@@ -47,7 +35,8 @@ def get_download_link(file_path, file_label):
     href = f'<a href="data:video/mp4;base64,{b64}" download="{file_label}.mp4">📥 点击下载最终视频</a>'
     return href
 
-# ========== 输入合法性检查 ==========
+
+# 输入合法性检查
 def is_valid_input(language: str, text: str) -> bool:
     text = text.strip()
     if not text:
@@ -59,7 +48,7 @@ def is_valid_input(language: str, text: str) -> bool:
     return False
 
 
-# ========== 图像生成 ==========
+# 图像生成
 def generate_single_caption_image(style, txt):
     prompt = f"{style} 风格，{style} 风格，描绘{txt}场景"
     rsp = ImageSynthesis.call(
@@ -84,7 +73,7 @@ def generate_single_caption_image(style, txt):
         raise Exception(f"图像生成失败: {rsp.status_code}, code: {rsp.code}, message: {rsp.message}")
 
 
-# ========== 音频生成函数 ==========
+# 音频生成
 def generate_audio(prompt, duration=5.0, seed=0):
     headers = {"Authorization": f"Token {VIDU_API_KEY}", "Content-Type": "application/json"}
     payload = {
@@ -114,13 +103,6 @@ def generate_audio(prompt, duration=5.0, seed=0):
             poll_status.info(f"🎵 音频生成状态：{state}")
 
 
-import os
-import tempfile
-import requests
-import shutil
-from moviepy.editor import VideoFileClip, AudioFileClip, concatenate_videoclips, concatenate_audioclips
-
-
 def download_file(url, folder, prefix):
     # 获取文件扩展名，例如 .mp4 或 .mp3
     path = urlparse(url).path
@@ -138,63 +120,6 @@ def download_file(url, folder, prefix):
 
     return local_path
 
-
-# def merge_videos_and_audios(video_urls, audio_urls,captions):
-#     # 临时目录存放下载文件
-#     with tempfile.TemporaryDirectory() as tmpdir:
-#         video_clips = []
-#         audio_clips = []
-#
-#         # 下载视频和音频，读取为moviepy对象
-#         for i, (v_url, a_url) in enumerate(zip(video_urls, audio_urls)):
-#             v_path = download_file(v_url, tmpdir, f"video{i}")
-#             a_path = download_file(a_url, tmpdir, f"audio{i}")
-#
-#             video_clip = VideoFileClip(v_path)
-#             audio_clip = AudioFileClip(a_path)
-#
-#             # 添加字幕（使用 TextClip 叠加到视频上）
-#             text = captions[i]
-#             subtitle = TextClip(
-#                 txt=text,
-#                 fontsize=38,
-#                 font="黑体",  # Windows下建议使用 SimHei（黑体），或你本机已有的中文字体
-#                 color='white',
-#                 stroke_color='black',
-#                 # stroke_width=2,
-#                 method='label'
-#             ).set_position(("center", "bottom")).set_duration(video_clip.duration)
-#
-#             # 合并字幕和视频
-#             composite_clip = CompositeVideoClip([video_clip, subtitle])
-#
-#             video_clips.append(composite_clip)
-#             audio_clips.append(audio_clip)
-#
-#         # 合并视频
-#         final_video = concatenate_videoclips(video_clips, method="compose")
-#
-#         # 合并音频
-#         final_audio = concatenate_audioclips(audio_clips)
-#
-#         # 设置合成后的音频到视频
-#         final_video = final_video.set_audio(final_audio)
-#
-#         # 导出最终视频文件
-#         output_path = os.path.join(tmpdir, "final_video.mp4")
-#         final_video.write_videofile(output_path, codec="libx264", audio_codec="aac")
-#
-#         # 释放资源
-#         for clip in video_clips + audio_clips:
-#             clip.close()
-#         final_video.close()
-#         final_audio.close()
-#
-#         # 读取导出文件的二进制，用于streamlit播放
-#         with open(output_path, "rb") as f:
-#             video_bytes = f.read()
-#
-#         return video_bytes
 
 def merge_videos_and_audios(video_urls, audio_urls, captions):
     # 临时目录
@@ -242,12 +167,24 @@ def merge_videos_and_audios(video_urls, audio_urls, captions):
         # 清理临时文件夹（调试时可以注释掉）
         shutil.rmtree(tmpdir, ignore_errors=True)
 
+# start ui
+st.set_page_config(page_title="校园AI短视频生成器", layout="centered")
+st.title("🎬 校园AI短视频生成器")
+
+language_option = st.selectbox("请选择语言", ["中文", "English"])
+topic = st.text_input("请输入你想要生成视频的校园主题", "")
+language = 1 if language_option == "中文" else 0
+
+# 会话变量初始化
+for key in ["script", "scene_texts", "image_urls", "video_urls", "final_video_data", "final_video_url",
+            "final_video_path"]:
+    st.session_state.setdefault(key, None)
 
 # 历史记录功能初始化
 history = SimpleHistory()
 history.render()
 
-# ========== 主流程 ==========
+# 主流程 + ui
 st.markdown("## 🖊️ 生成主题剧本")
 if topic:
     if not is_valid_input(language_option, topic):
@@ -265,18 +202,17 @@ if topic:
 
         if st.session_state.script:
             st.text_area("📜 剧本内容（只读）", st.session_state.script, height=150, disabled=True)
-            # ===== 🎨 图像风格选择模块（支持推荐标签点击填入） =====
+            # 图像风格选择模块（支持推荐标签点击填入）
             default_styles = ["宫崎骏风格", "迪士尼卡通", "中国水墨", "儿童绘本风", "像素画风", "油画质感", "赛博朋克",
                               "毕加索风格"]
 
             st.markdown("## 🖼️ 生成剧本场景")
             st.markdown("🎨 推荐图像风格（点击可填入）：")
 
-            # 创建多列按钮布局
             cols = st.columns(len(default_styles))
             for i, style in enumerate(default_styles):
                 if cols[i].button(style):
-                    st.session_state["selected_style"] = style  # 点击某个按钮后，保存风格到 session_state
+                    st.session_state["selected_style"] = style
 
             # 获取默认文本：如果用户点了按钮就用它，否则为空
             default_text = st.session_state.get("selected_style", "")
@@ -288,55 +224,53 @@ if topic:
             # 决定最终图像风格：优先使用用户输入，其次用推荐默认值
             final_style = user_style_input.strip() if user_style_input.strip() else default_styles[0]
 
-        if st.button("2️⃣ 智能切分剧本，一键生成所有场景图片"):
-            # 根据语言选择合适的句子分隔符（中文：。；英文：.）
-            if language_option == "中文":
-                delimiters = "。"  # 可加入感叹号、问号
-            else:
-                delimiters = "."
+            if st.button("2️⃣ 智能切分剧本，一键生成所有场景图片"):
+                # 根据语言选择合适的句子分隔符（中文：。；英文：.）
+                if language_option == "中文":
+                    delimiters = "。"  # 可加入感叹号、问号
+                else:
+                    delimiters = "."
 
-            # 正则表达式分割句子（保留分隔符后再 strip）
-            import re
+                # 正则表达式分割句子（保留分隔符后再 strip）
+                import re
 
-            pattern = rf"([^{delimiters}]*[{delimiters}])"
-            segments = re.findall(pattern, st.session_state.script)
-            st.session_state.scene_texts = [seg.strip() for seg in segments if seg.strip()]
+                pattern = rf"([^{delimiters}]*[{delimiters}])"
+                segments = re.findall(pattern, st.session_state.script)
+                st.session_state.scene_texts = [seg.strip() for seg in segments if seg.strip()]
 
-            # 初始化图像URL列表
-            st.session_state.image_urls = [None] * len(st.session_state.scene_texts)
+                # 初始化图像URL列表
+                st.session_state.image_urls = [None] * len(st.session_state.scene_texts)
 
-            with st.spinner("生成中..."):
-                progress = st.progress(0, text="开始生成图片...")
-                for idx, text in enumerate(st.session_state.scene_texts):
-                    try:
-                        # ✅ 构造带前文的 prompt
-                        if idx > 0:
-                            prev_text = st.session_state.scene_texts[idx - 1]
-                            prompt = f"在“{prev_text}”的前提下，你接下来根据“{text}”生成图片"
+                with st.spinner("生成中..."):
+                    progress = st.progress(0, text="开始生成图片...")
+                    for idx, text in enumerate(st.session_state.scene_texts):
+                        try:
+                            # ✅ 构造带前文的 prompt
+                            if idx > 0:
+                                prev_text = st.session_state.scene_texts[idx - 1]
+                                prompt = f"在“{prev_text}”的前提下，你接下来根据“{text}”生成图片"
+                            else:
+                                prompt = text
+
+                            url = generate_single_caption_image(final_style, prompt)
+                            st.session_state.image_urls[idx] = url
+
+                            progress.progress((idx + 1) / len(st.session_state.scene_texts),
+                                              text=f"已完成第 {idx + 1}/{len(st.session_state.scene_texts)} 张")
+                        except Exception as e:
+                            st.warning(f"第 {idx + 1} 张生成失败：{e}")
+                    progress.empty()
+                    st.success("🎉 所有图片生成完成")
+
+                    for idx, (url, text) in enumerate(zip(st.session_state.image_urls, st.session_state.scene_texts)):
+                        print(f"{url}")
+                        if url is not None:
+                            history.add_record(url, label=f"🖼️ 场景 {idx + 1} - {text[:10]} 图片")
                         else:
-                            prompt = text
-
-                        url = generate_single_caption_image(final_style, prompt)
-                        st.session_state.image_urls[idx] = url
-
-                        progress.progress((idx + 1) / len(st.session_state.scene_texts),
-                                          text=f"已完成第 {idx + 1}/{len(st.session_state.scene_texts)} 张")
-                    except Exception as e:
-                        st.warning(f"第 {idx + 1} 张生成失败：{e}")
-                progress.empty()
-                st.success("🎉 所有图片生成完成")
-
-                for idx, (url, text) in enumerate(zip(st.session_state.image_urls, st.session_state.scene_texts)):
-                    print(f"{url}")
-                    if url is not None:
-                        history.add_record(url, label=f"🖼️ 场景 {idx + 1} - {text[:10]} 图片")
-                    else:
-                        st.warning("当前资源未生成成功，跳过展示/处理")
-                st.rerun()
-        # --- 展示每张图 + 生成视频/音频按钮 ---
+                            st.warning("当前资源未生成成功，跳过展示/处理")
+                    st.rerun()
+        # 展示每张图 + 生成视频/音频按钮
         if st.session_state.image_urls:
-            # st.markdown("### 🖼️ 每个场景生成内容（图+视频+音）")
-
             if "video_urls" not in st.session_state or st.session_state.video_urls is None:
                 st.session_state.video_urls = [None] * len(st.session_state.image_urls)
             if "audio_urls" not in st.session_state or st.session_state.audio_urls is None:
@@ -353,7 +287,7 @@ if topic:
                     cols = st.columns(2)
                     cols = st.columns(2)
 
-                    # 左边：生成视频按钮及展示
+                    # 生成视频按钮及展示
                     with cols[0]:
                         if st.button(f"🎞️ 生成视频 - 场景 {idx + 1}", key=f"gen_vid_{idx}"):
                             try:
@@ -394,7 +328,7 @@ if topic:
                         if st.session_state.video_urls[idx]:
                             st.video(st.session_state.video_urls[idx], format="video/mp4")
 
-                    # 右边：生成音频按钮及展示
+                    # 生成音频按钮及展示
                     with cols[1]:
                         if st.button(f"🎵 生成背景音 - 场景 {idx + 1}", key=f"gen_audio_{idx}"):
                             try:
@@ -413,11 +347,11 @@ if topic:
                         if st.session_state.audio_urls[idx]:
                             st.audio(st.session_state.audio_urls[idx], format="audio/mp3")
 
-            # ✅ 判断是否所有视频和音频均已生成，显示合成按钮
+            # 判断是否所有视频和音频均已生成，显示合成按钮
             all_video_ready = all(url is not None for url in st.session_state.video_urls)
             all_audio_ready = all(url is not None for url in st.session_state.audio_urls)
-            all_video_ready = True
-            all_audio_ready = True
+            all_video_ready = True  # test
+            all_audio_ready = True  # test
 
             if all_video_ready and all_audio_ready:
                 st.markdown("## 🤩 生成最终短视频")
@@ -442,7 +376,7 @@ if topic:
                             video_data = merge_videos_and_audios(
                                 video_urls_filtered,
                                 audio_urls_filtered,
-                                captions_filtered  # 👈 添加字幕参数
+                                captions_filtered
                             )
                             st.success("✅ 合成完成！播放最终视频：")
                             st.video(video_data)
@@ -451,8 +385,9 @@ if topic:
                             output_path = "/tmp/final_video.mp4"
                             with open(output_path, "wb") as f:
                                 f.write(video_data)
-                            st.session_state.final_video_path = output_path  # ✅ 保存路径
-                            history.add_record(output_path, label=f"🎬 {topic} 合成视频下载", is_file=True, filename="final_video")
+                            st.session_state.final_video_path = output_path
+                            history.add_record(output_path, label=f"🎬 {topic} 合成视频下载", is_file=True,
+                                               filename="final_video")
                             st.rerun()
                         except Exception as e:
                             st.error(f"❌ 合成失败：{e}")
