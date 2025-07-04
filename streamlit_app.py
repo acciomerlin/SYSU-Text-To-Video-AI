@@ -288,42 +288,51 @@ if topic:
             # 决定最终图像风格：优先使用用户输入，其次用推荐默认值
             final_style = user_style_input.strip() if user_style_input.strip() else default_styles[0]
 
-            if st.button("2️⃣ 智能切分剧本，一键生成所有场景图片"):
-                # 根据语言选择合适的句子分隔符（中文：。；英文：.）
-                if language_option == "中文":
-                    delimiters = "。"  # 可加入感叹号、问号
-                else:
-                    delimiters = "."
-                # 正则表达式分割句子（保留分隔符后再 strip）
-                import re
+        if st.button("2️⃣ 智能切分剧本，一键生成所有场景图片"):
+            # 根据语言选择合适的句子分隔符（中文：。；英文：.）
+            if language_option == "中文":
+                delimiters = "。"  # 可加入感叹号、问号
+            else:
+                delimiters = "."
 
-                pattern = rf"([^{delimiters}]*[{delimiters}])"
-                segments = re.findall(pattern, st.session_state.script)
-                st.session_state.scene_texts = [seg.strip() for seg in segments if seg.strip()]
+            # 正则表达式分割句子（保留分隔符后再 strip）
+            import re
 
-                st.session_state.image_urls = [None] * len(st.session_state.scene_texts)
+            pattern = rf"([^{delimiters}]*[{delimiters}])"
+            segments = re.findall(pattern, st.session_state.script)
+            st.session_state.scene_texts = [seg.strip() for seg in segments if seg.strip()]
 
-                with st.spinner("生成中..."):
-                    progress = st.progress(0, text="开始生成图片...")
-                    for idx, text in enumerate(st.session_state.scene_texts):
-                        try:
-                            url = generate_single_caption_image(final_style, text)
-                            st.session_state.image_urls[idx] = url
-                            progress.progress((idx + 1) / len(st.session_state.scene_texts),
-                                              text=f"已完成第 {idx + 1}/{len(st.session_state.scene_texts)} 张")
-                            # st.image(url, caption=text, use_container_width=True)
-                        except Exception as e:
-                            st.warning(f"第 {idx + 1} 张生成失败：{e}")
-                    progress.empty()
-                    st.success("🎉 所有图片生成完成")
-                    for idx, (url, text) in enumerate(zip(st.session_state.image_urls, st.session_state.scene_texts)):
-                        print(f"{url}")
-                        if url is not None:
-                            history.add_record(url, label=f"🖼️ 场景 {idx + 1} - {text[:10]} 图片")
+            # 初始化图像URL列表
+            st.session_state.image_urls = [None] * len(st.session_state.scene_texts)
+
+            with st.spinner("生成中..."):
+                progress = st.progress(0, text="开始生成图片...")
+                for idx, text in enumerate(st.session_state.scene_texts):
+                    try:
+                        # ✅ 构造带前文的 prompt
+                        if idx > 0:
+                            prev_text = st.session_state.scene_texts[idx - 1]
+                            prompt = f"在“{prev_text}”的前提下，你接下来根据“{text}”生成图片"
                         else:
-                            st.warning("当前资源未生成成功，跳过展示/处理")
-                    st.rerun()
+                            prompt = text
 
+                        url = generate_single_caption_image(final_style, prompt)
+                        st.session_state.image_urls[idx] = url
+
+                        progress.progress((idx + 1) / len(st.session_state.scene_texts),
+                                          text=f"已完成第 {idx + 1}/{len(st.session_state.scene_texts)} 张")
+                    except Exception as e:
+                        st.warning(f"第 {idx + 1} 张生成失败：{e}")
+                progress.empty()
+                st.success("🎉 所有图片生成完成")
+
+                for idx, (url, text) in enumerate(zip(st.session_state.image_urls, st.session_state.scene_texts)):
+                    print(f"{url}")
+                    if url is not None:
+                        history.add_record(url, label=f"🖼️ 场景 {idx + 1} - {text[:10]} 图片")
+                    else:
+                        st.warning("当前资源未生成成功，跳过展示/处理")
+                st.rerun()
         # --- 展示每张图 + 生成视频/音频按钮 ---
         if st.session_state.image_urls:
             # st.markdown("### 🖼️ 每个场景生成内容（图+视频+音）")
