@@ -8,3 +8,4 @@ __pycache__/
 *.png
 audio_tts.wav
 ffmpeg.exe
+.env

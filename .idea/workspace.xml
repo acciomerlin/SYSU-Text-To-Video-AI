@@ -4,16 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a67939a4-45e8-451d-9588-639250dc5bf3" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/SYSU-Text-To-Video-AI.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SYSU-Text-To-Video-AI.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="a67939a4-45e8-451d-9588-639250dc5bf3" name="更改" comment="更改">
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/streamlit_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/streamlit_app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utility/audio/audio_generator.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/utility/captions/timed_captions_generator.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/utility/render/render_engine.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/utility/utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/utility/video/background_video_generator.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -154,6 +149,8 @@
       <updated>1751278615272</updated>
       <workItem from="1751465157133" duration="12997000" />
       <workItem from="1751537945115" duration="16144000" />
+      <workItem from="1751764016335" duration="3018000" />
+      <workItem from="1751873577686" duration="547000" />
     </task>
     <servers />
   </component>
