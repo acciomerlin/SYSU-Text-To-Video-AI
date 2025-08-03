@@ -52,10 +52,11 @@ streamlit run streamlit_app.py
 -  **视频合成**：三段及以上即可合成完整视频，加入字幕与音轨
 <img width="1280" height="326" alt="image" src="https://github.com/user-attachments/assets/0de8e218-fff8-4a79-b60b-f9b762e43556" />
   - 示例输出：
-<video controls width="400">
-  <source src="video.mp4" type="video/mp4">
-  您的浏览器不支持 video 标签。
-</video>
+
+
+https://github.com/user-attachments/assets/9ebe1816-e9c4-45d8-9d77-e7716d8be964
+
+
 -  **历史记录**：每次生成的图像和视频自动保存在侧边栏，支持下载
 <img width="486" height="1280" alt="image" src="https://github.com/user-attachments/assets/1db124e8-ad91-4eaa-83cc-073ef683fd4e" />
 
