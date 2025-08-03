@@ -22,6 +22,8 @@ conda activate text2video
 pip install -r requirements.txt
 ```
 
+将.env里的文件换成您自己的 api，我们文本生成用的是 deepseek，图片生产用的是通义万象，视频和音频生成用的是vidu，第一个充了 10 块可以用很久，第二个三个模型免费 500 张生成，第三个最少充 350 也还没用完，目前来讲是最省的开发环境了，想变可以自己 diy
+
 启动前端应用：
 
 ```bash
@@ -30,13 +32,32 @@ streamlit run streamlit_app.py
 
 ##  3. 功能说明
 
-启动应用后，支持以下功能：
+启动应用后，界面如下：
+<img width="1280" height="651" alt="image" src="https://github.com/user-attachments/assets/7700774d-864d-4ceb-bdbd-f0dbdd1720bb" />
+
+支持以下功能：
 
 - **剧本生成**：输入主题或关键词，自动生成五句故事剧本（中英文可选）
+<img width="1280" height="538" alt="image" src="https://github.com/user-attachments/assets/967e60c4-7eb4-45bd-80ea-9764e29598ed" />
+<img width="1280" height="658" alt="image" src="https://github.com/user-attachments/assets/7864283b-fbc7-43ca-a540-cba1f2d0d4a0" />
+
 -  **剧本场景图生成**：选择图片风格（如像素、卡通），为每句话生成配图
+<img width="1213" height="720" alt="image" src="https://github.com/user-attachments/assets/2c4aca5f-79b4-46a3-8b35-a654c3016a02" />
+  - 示例输出：
+<img width="1724" height="1032" alt="image" src="https://github.com/user-attachments/assets/240fdfac-5c78-4421-b86f-d67cf9930ca5" />
+
 -  **图生视频 + 音频生成**：点击一键生成配图动画和对应旁白音频
+<img width="1588" height="1076" alt="image" src="https://github.com/user-attachments/assets/cdc12269-161e-4bb2-b219-474b673f80a8" />
+
 -  **视频合成**：三段及以上即可合成完整视频，加入字幕与音轨
+<img width="1280" height="326" alt="image" src="https://github.com/user-attachments/assets/0de8e218-fff8-4a79-b60b-f9b762e43556" />
+  - 示例输出：
+<video controls width="400">
+  <source src="assets/video.mp4" type="video/mp4">
+  您的浏览器不支持 video 标签。
+</video>
 -  **历史记录**：每次生成的图像和视频自动保存在侧边栏，支持下载
+<img width="486" height="1280" alt="image" src="https://github.com/user-attachments/assets/1db124e8-ad91-4eaa-83cc-073ef683fd4e" />
 
 ## 4. 项目目录结构说明
 
