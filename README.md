@@ -53,7 +53,7 @@ streamlit run streamlit_app.py
 <img width="1280" height="326" alt="image" src="https://github.com/user-attachments/assets/0de8e218-fff8-4a79-b60b-f9b762e43556" />
   - 示例输出：
 <video controls width="400">
-  <source src="assets/video.mp4" type="video/mp4">
+  <source src="video.mp4" type="video/mp4">
   您的浏览器不支持 video 标签。
 </video>
 -  **历史记录**：每次生成的图像和视频自动保存在侧边栏，支持下载
